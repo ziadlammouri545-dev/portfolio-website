@@ -1,526 +1,311 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Globe,
-  Workflow,
-  Terminal,
-  GraduationCap,
+  Link as LinkIcon,
+  Share2,
+  Github,
+  Mail,
+  Coffee,
+  Music2,
   ArrowUpRight,
-  ArrowDown,
-  ArrowUp,
-  Sun,
-  Moon,
+  MapPin,
+  Send,
+  Terminal,
+  Zap,
+  Server,
+  Database,
+  Workflow,
+  FileCode2,
+  Cpu,
+  Code2,
+  Palette,
+  GitBranch,
 } from "lucide-react";
 
 const GITHUB = "https://github.com/ziadlammouri545-dev";
 const EMAIL = "ziadlammouri545@gmail.com";
 const NAME = "Ziad Lammourri";
 
-function useInView(threshold = 0.25) {
-  const ref = useRef(null);
-  const [inView, setInView] = useState(false);
+function useFollowers() {
+  const [followers, setFollowers] = useState(null);
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          setInView(true);
-          io.disconnect();
-        }
-      },
-      { threshold }
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [threshold]);
-  return [ref, inView];
+    fetch("https://api.github.com/users/ziadlammouri545-dev")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d && setFollowers(d.followers))
+      .catch(() => {});
+  }, []);
+  return followers;
 }
 
-function Mark({ text, serif = [], className = "" }) {
-  const [ref, inView] = useInView(0.3);
-  const words = text.split(" ");
+function useAlgiersTime() {
+  const [t, setT] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setT(new Date()), 30000);
+    return () => clearInterval(id);
+  }, []);
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Africa/Algiers",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(t);
+}
+
+function TopBar() {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard
+      .writeText(window.location.href)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1600);
+      })
+      .catch(() => {});
+  };
   return (
-    <span className={`mark ${className}`} ref={ref}>
-      {words.map((w, i) => (
-        <span className="mw" key={i}>
-          <span
-            className={`mi ${inView ? "in" : ""} ${serif.includes(i) ? "serif" : ""}`}
-            style={{ transitionDelay: `${(i * 0.045).toFixed(3)}s` }}
-          >
-            {w}
-            {"\u00A0"}
-          </span>
-        </span>
-      ))}
-    </span>
+    <header className="topbar">
+      <div className="brand">
+        <span className="brand-tile">ZL</span>
+        <span className="brand-word">ziad.lammourri</span>
+      </div>
+      <div className="topbar-right">
+        <button className="pill white" onClick={copy}>
+          <LinkIcon size={15} />
+          {copied ? "Copied!" : "Copy link"}
+        </button>
+        <button className="icon-btn" onClick={copy} aria-label="Share">
+          <Share2 size={15} />
+        </button>
+      </div>
+    </header>
   );
 }
 
-function Eyebrow({ num, label }) {
+function SocialBtn({ href, icon: Icon, label }) {
   return (
-    <div className="eyebrow">
-      <span className="eyebrow-num">{num}</span>
-      <span className="eyebrow-line" />
-      <span className="eyebrow-label">{label}</span>
+    <a className="social-btn" href={href} target="_blank" rel="noreferrer" aria-label={label} title={label}>
+      <Icon size={18} />
+    </a>
+  );
+}
+
+function ProfileTile() {
+  const followers = useFollowers();
+  return (
+    <div className="tile s2 r2 profile">
+      <div className="profile-top">
+        <span className="avatar"><img src="https://avatars.githubusercontent.com/u/268178767?v=4" alt={NAME} /></span>
+        <span className="pill status">
+          <span className="status-dot" />
+          Open to internships
+        </span>
+      </div>
+      <h1 className="bric name">{NAME}</h1>
+      <p className="role">Software engineering student &amp; maker</p>
+      <p className="bio">
+        2nd year CS at Université d'Alger 1. I build small web apps, CLI tools
+        and automations, and I push everything to GitHub. Currently
+        {followers !== null ? ` ${followers}` : ""} followers and counting.
+      </p>
+      <div className="socials">
+        <SocialBtn href={GITHUB} icon={Github} label="GitHub" />
+        <SocialBtn href={`mailto:${EMAIL}`} icon={Mail} label="Email" />
+        <SocialBtn href={`${GITHUB}/taskly`} icon={Terminal} label="My CLI, taskly" />
+        <SocialBtn href={`${GITHUB}/n8n-automations`} icon={Workflow} label="n8n workflows" />
+      </div>
     </div>
   );
 }
 
-function Chip({ children, accent = false }) {
-  return <span className={`chip ${accent ? "chip-accent" : ""}`}>{children}</span>;
+function PhotoTile() {
+  return (
+    <div className="tile s2 photo">
+      <div className="desk">
+        <span className="desk-screen" />
+        <span className="desk-keyboard" />
+        <span className="desk-cup" />
+        <span className="desk-note" />
+      </div>
+      <span className="glass-chip">
+        <Coffee size={14} className="ico-apricot" />
+        On the desk today
+      </span>
+    </div>
+  );
 }
 
-function SpotCard({ index, icon: Icon, title, body, chips }) {
-  const ref = useRef(null);
-  const onMove = (e) => {
-    const rect = ref.current.getBoundingClientRect();
-    ref.current.style.setProperty("--spot-x", `${e.clientX - rect.left}px`);
-    ref.current.style.setProperty("--spot-y", `${e.clientY - rect.top}px`);
-  };
+function NowPlaying() {
   return (
-    <div className="spot" ref={ref} onMouseMove={onMove}>
-      <div className="spot-top">
-        <span className="spot-num">0{index}</span>
-        <span className="spot-icon">
-          <Icon size={18} />
-        </span>
+    <div className="tile dark-tile np">
+      <div className="np-eyebrow">
+        <Music2 size={13} className="ico-teal" />
+        Now playing
       </div>
-      <h3>{title}</h3>
-      <p>{body}</p>
-      <div className="spot-chips">
-        {chips.map((c) => (
-          <Chip key={c}>{c}</Chip>
+      <div className="np-thumb">
+        <Music2 size={18} />
+      </div>
+      <div className="np-meta">
+        <span className="np-track">Coding Lo-Fi</span>
+        <span className="np-artist">on repeat, lately</span>
+      </div>
+      <div className="np-bottom">
+        <span className="eq">
+          {[0, 1, 2, 3].map((i) => (
+            <i key={i} style={{ animationDelay: `${i * 0.14}s` }} />
+          ))}
+        </span>
+        <span className="np-time">2:41</span>
+      </div>
+    </div>
+  );
+}
+
+function StatTile() {
+  const followers = useFollowers();
+  return (
+    <div className="tile teal-tile stat-tile">
+      <div className="stat-top">
+        <Github size={16} className="ico-white" />
+        <span className="trend"><Send size={12} /> live</span>
+      </div>
+      <div>
+        <div className="bric stat-num">{followers ?? "—"}</div>
+        <div className="stat-cap">followers on GitHub</div>
+      </div>
+    </div>
+  );
+}
+
+function ProjectTile() {
+  return (
+    <a className="tile s2 project" href={`${GITHUB}/taskly`} target="_blank" rel="noreferrer">
+      <span className="proj-thumb">
+        <Terminal size={26} />
+      </span>
+      <span className="proj-mid">
+        <span className="eyebrow-label">Latest project</span>
+        <span className="proj-title bric">taskly</span>
+        <span className="proj-tags">
+          <span className="tag">Node.js</span>
+          <span className="tag">CLI</span>
+          <span className="chip-live">daily driver</span>
+        </span>
+      </span>
+      <span className="go-btn">
+        <ArrowUpRight size={18} />
+      </span>
+    </a>
+  );
+}
+
+function MapTile() {
+  const time = useAlgiersTime();
+  return (
+    <div className="tile map-tile">
+      <svg className="map-svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" aria-hidden>
+        <rect width="200" height="200" fill="none" />
+        <path d="M10 140 C 60 120, 130 160, 190 130" stroke="rgba(15,157,143,0.22)" strokeWidth="22" fill="none" strokeLinecap="round" />
+        <path d="M30 60 C 80 90, 120 40, 170 70" stroke="rgba(15,157,143,0.22)" strokeWidth="22" fill="none" strokeLinecap="round" />
+        <path d="M0 90 C 60 110, 140 80, 200 95" stroke="rgba(15,157,143,0.13)" strokeWidth="14" fill="none" />
+        <path d="M40 0 C 70 60, 60 140, 90 200" stroke="rgba(15,157,143,0.13)" strokeWidth="14" fill="none" />
+      </svg>
+      <span className="pin">
+        <span className="pin-halo" />
+        <span className="pin-dot" />
+      </span>
+      <div className="map-bottom">
+        <span className="loc-chip">
+          <MapPin size={13} className="ico-apricotdeep" />
+          Algiers, Algeria
+        </span>
+        <span className="loc-time">{time}</span>
+      </div>
+    </div>
+  );
+}
+
+function NewsletterTile() {
+  return (
+    <div className="tile apricot-tile news">
+      <div className="news-top">
+        <span className="eyebrow-label ink-soft">The weekly</span>
+        <Send size={16} />
+      </div>
+      <div>
+        <span className="bric news-title">Someday a<br />newsletter</span>
+        <span className="news-sub">Currently: more repos, fewer words.</span>
+      </div>
+    </div>
+  );
+}
+
+const tools = [
+  { name: "React", icon: Code2, c: "teal" },
+  { name: "Vite", icon: Zap, c: "apricot" },
+  { name: "Node.js", icon: Server, c: "teal" },
+  { name: "Express", icon: Terminal, c: "apricot" },
+  { name: "SQLite", icon: Database, c: "teal" },
+  { name: "n8n", icon: Workflow, c: "apricot" },
+  { name: "JavaScript", icon: FileCode2, c: "teal" },
+  { name: "Python", icon: Cpu, c: "apricot" },
+  { name: "C", icon: GitBranch, c: "teal" },
+  { name: "HTML", icon: Code2, c: "apricot" },
+  { name: "CSS", icon: Palette, c: "teal" },
+  { name: "Git", icon: GitBranch, c: "apricot" },
+];
+
+function ToolboxTile() {
+  return (
+    <div className="tile s2 toolbox">
+      <span className="eyebrow-label">Toolbox</span>
+      <div className="tool-chips">
+        {tools.map((t) => (
+          <span className="tool-chip" key={t.name}>
+            <t.icon size={14} className={t.c === "teal" ? "ico-teal" : "ico-apricotdeep"} />
+            {t.name}
+          </span>
         ))}
       </div>
     </div>
   );
 }
 
-const covers = [
-  ["#0e7fff", "#6d5ae6"],
-  ["#12907f", "#1fb8a3"],
-  ["#0e7fff", "#38bdf8"],
-  ["#6d5ae6", "#a78bfa"],
-  ["#1fb8a3", "#34d399"],
-  ["#38bdf8", "#6d5ae6"],
-];
-
-function ProjectRow({ p, i }) {
+function CtaTile() {
   return (
-    <a className="proj" href={p.url} target="_blank" rel="noreferrer">
-      <div className="proj-cover" style={{ background: `linear-gradient(135deg, ${covers[i % 6][0]}, ${covers[i % 6][1]})` }}>
-        <span className="proj-cover-idx">0{i + 1}</span>
-        <span className="proj-cover-name">{p.name}</span>
-        <span className="proj-cover-line" />
+    <div className="tile s2 cta">
+      <div className="cta-glow" />
+      <div className="cta-copy">
+        <span className="bric cta-title">Let's make something</span>
+        <span className="cta-sub">Open for internships and small projects.</span>
       </div>
-      <div className="proj-body">
-        <span className="proj-top">
-          <span className="proj-idx">0{i + 1}</span>
-          {i < 2 && <Chip accent>Featured</Chip>}
-          <span className="proj-open">Source <ArrowUpRight size={14} /></span>
-        </span>
-        <h3 className="proj-title">{p.name}</h3>
-        <p className="proj-desc">{p.desc}</p>
-        <div className="proj-tags">
-          {p.stack.map((t) => (
-            <Chip key={t}>{t}</Chip>
-          ))}
-        </div>
-      </div>
-    </a>
+      <a className="pill teal" href={`mailto:${EMAIL}`}>
+        Say hello <ArrowUpRight size={15} />
+      </a>
+    </div>
   );
 }
 
-const langs = [
-  ["JavaScript", 80],
-  ["HTML", 75],
-  ["CSS", 65],
-  ["Python", 25],
-  ["C", 22],
-];
-
-const toolbox = [
-  "React", "Vite", "Node.js", "Express", "SQLite", "n8n",
-  "Git", "npm", "Figma", "GitHub", "Vercel", "Telegram API",
-];
-
-function App() {
-  const [dark, setDark] = useState(
-    () => (typeof localStorage !== "undefined" && localStorage.getItem("theme") === "dark") || false
-  );
-  const [sent, setSent] = useState(false);
-  const [glass, setGlass] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-    localStorage.setItem("theme", dark ? "dark" : "light");
-  }, [dark]);
-
-  useEffect(() => {
-    const onScroll = () => setGlass(window.scrollY > 10);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
-
-  const submit = (e) => {
-    e.preventDefault();
-    const subject = encodeURIComponent(form.subject || `Hello from ${form.name || "your site"}`);
-    const body = encodeURIComponent(`Hi Ziad,\n\n${form.message}\n\n— ${form.name} (${form.email})`);
-    window.location.href = `mailto:${EMAIL}?subject=${subject}&body=${body}`;
-    setSent(true);
-  };
-
-  const nav = ["About", "Skills", "Stack", "Work", "Experience", "Contact"];
-
+export default function App() {
+  const year = new Date().getFullYear();
   return (
     <div className="page">
-      <div className="grain" aria-hidden />
+      <TopBar />
 
-      <header className={glass ? "hdr glass" : "hdr"}>
-        <div className="cw hdr-in">
-          <a href="#top" className="logo">
-            <span className="logo-tile">ZL</span>
-            <span className="logo-word">Ziad Lammourri</span>
-          </a>
-          <nav className="hdr-nav">
-            {nav.map((n) => (
-              <a key={n} href={`#${n.toLowerCase()}`}>{n}</a>
-            ))}
-          </nav>
-          <div className="hdr-right">
-            <button
-              className="theme-btn"
-              onClick={() => setDark((d) => !d)}
-              aria-label="Toggle theme"
-              title="Toggle theme"
-            >
-              {dark ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
-            <a className="pill pill-accent" href="#contact">
-              Hire me <ArrowUpRight size={14} />
-            </a>
-          </div>
-        </div>
-      </header>
-
-      <main id="main">
-        <section className="hero" id="top">
-          <div className="hero-glow" />
-          <div className="cw">
-            <div className="hero-eyebrow">
-              <span className="pulse" />
-              Software Engineering Student — Algiers, Algeria
-            </div>
-            <h1 className="hero-name">
-              <Mark text="Ziad" />
-              <Mark text="Lammourri" />
-            </h1>
-            <p className="hero-lead">
-              I build modern web applications, CLI tools, and automation
-              systems that actually solve problems —{" "}
-              <Mark text="clean engineering with a human touch" serif={[0, 1, 2]} />
-              .
-            </p>
-            <div className="hero-cta">
-              <a className="pill pill-accent" href="#work">View my work <ArrowDown size={15} /></a>
-              <a className="pill pill-ghost" href="#contact">Say hello <ArrowUpRight size={15} /></a>
-            </div>
-          </div>
-          <div className="cw hero-bar">
-            <span className="mono-chip">[ 01 — Hero ]</span>
-            <a className="hero-scroll" href="#about">Scroll <ArrowDown size={13} /></a>
-            <div className="hero-links">
-              <a href={GITHUB} target="_blank" rel="noreferrer">GitHub</a>
-              <a href={`mailto:${EMAIL}`}>Email</a>
-            </div>
-          </div>
-        </section>
-
-        <section className="sec" id="about">
-          <div className="cw">
-            <Eyebrow num="01" label="About me" />
-            <h2 className="h2"><Mark text="A builder in the making" serif={[3]} /></h2>
-            <a className="email-link" href={`mailto:${EMAIL}`}>{EMAIL}</a>
-            <p className="lede">
-              I'm a software engineering student from Algiers who spends his
-              days on the web stack and his evenings on the terminal. Everything
-              here is small, public, and mine.
-            </p>
-            <p className="lede">
-              Today that mostly means React and Node.js — building interfaces
-              that feel good to use and APIs with tests so nothing sneaks up on
-              me later. I wire up n8n to quietly handle the repetitive work, and
-              C plus Python are the slow burn I level up on the side.
-            </p>
-            <div className="facts">
-              <div className="fact"><span className="fact-k">Based in</span><span className="fact-v">Algiers, Algeria</span></div>
-              <div className="fact"><span className="fact-k">Studying</span><span className="fact-v">CS · LMD Year 2</span></div>
-              <div className="fact"><span className="fact-k">Focus</span><span className="fact-v">Web + Automation</span></div>
-              <div className="fact"><span className="fact-k">Languages</span><span className="fact-v">English · Arabic</span></div>
-            </div>
-            <div className="glass edu">
-              <div className="edu-head">
-                <span className="edu-icon"><GraduationCap size={18} /></span>
-                <div>
-                  <h3>Université d'Alger 1 — Benyoucef Benkhedda</h3>
-                  <span className="edu-sub">LMD Year 2 · Computer Science (Informatique)</span>
-                </div>
-              </div>
-              <div className="edu-chips">
-                <Chip>Algorithms</Chip>
-                <Chip>Data Structures</Chip>
-                <Chip>Systems</Chip>
-                <Chip>Software Engineering</Chip>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="sec" id="skills">
-          <div className="cw">
-            <Eyebrow num="02" label="Skills" />
-            <h2 className="h2"><Mark text="What I do best" serif={[3]} /></h2>
-            <p className="lede">
-              Three disciplines I bring together when building — each one
-              practised, not just listed.
-            </p>
-            <div className="spots">
-              <SpotCard
-                index={1}
-                icon={Globe}
-                title="Web Development"
-                body="Fast, component-based interfaces with React and Vite, backed by Node.js and Express APIs with real tests."
-                chips={["React & Vite", "Node.js & Express", "APIs & SQLite"]}
-              />
-              <SpotCard
-                index={2}
-                icon={Workflow}
-                title="Automation"
-                body="n8n workflows that remove busywork — digests, reports and alerts scheduled so I don't have to remember them."
-                chips={["n8n workflows", "Webhooks", "Scheduled jobs"]}
-              />
-              <SpotCard
-                index={3}
-                icon={Terminal}
-                title="Terminal & CLI"
-                body="Small command-line tools that do one job well and stay out of the way. Built because I find myself repeating commands."
-                chips={["Node.js CLIs", "Python scripts", "local-first"]}
-              />
-            </div>
-          </div>
-        </section>
-
-        <section className="sec" id="stack">
-          <div className="cw">
-            <Eyebrow num="03" label="Tech Stack" />
-            <h2 className="h2"><Mark text="Tools & languages" serif={[2]} /></h2>
-            <p className="lede">The stack I reach for when building — plus what I'm levelling up.</p>
-          </div>
-          <div className="marquee">
-            <div className="marquee-track">
-              {[4, 3, 2, 1, 0].flatMap(() =>
-                ["React", "Vite", "JavaScript", "Node.js", "Express", "SQLite", "HTML", "CSS", "n8n", "Python", "C", "Git"].map((s, i) => (
-                  <span className="marquee-item" key={`${s}-${i}`}>
-                    {s} <span className="mq-star">✦</span>
-                  </span>
-                ))
-              )}
-            </div>
-          </div>
-          <div className="cw">
-            <div className="stack-grid">
-              <div className="stack-col">
-                <h3 className="stack-title">Programming languages</h3>
-                {langs.map(([name, pct]) => (
-                  <Bar key={name} name={name} value={pct} />
-                ))}
-              </div>
-              <div className="stack-col">
-                <h3 className="stack-title">Toolbox</h3>
-                <div className="toolbox">
-                  {toolbox.map((t, i) => (
-                    <span className="toolbox-row" key={t}>
-                      <span className="toolbox-idx">0{i + 1}</span>
-                      <span className="toolbox-name">{t}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <p className="lede stack-out">
-              Comfortable picking up whatever a project needs — the fundamentals
-              travel, the tools just change.
-            </p>
-          </div>
-        </section>
-
-        <section className="sec" id="work">
-          <div className="cw">
-            <div className="work-head">
-              <div>
-                <Eyebrow num="04" label="Work" />
-                <h2 className="h2"><Mark text="Featured projects" serif={[1]} /></h2>
-              </div>
-              <span className="mono-chip">( 06 )</span>
-            </div>
-            <p className="lede">
-              Everything here is public on GitHub. Some are older than others —
-              all of them are real.
-            </p>
-            <div className="projs">
-              {projects.map((p, i) => (
-                <ProjectRow key={p.name} p={p} i={i} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="sec" id="experience">
-          <div className="cw">
-            <Eyebrow num="05" label="Experience" />
-            <h2 className="h2"><Mark text="Journey so far" serif={[0]} /></h2>
-            <div className="timeline">
-              <div className="tl-item">
-                <span className="tl-dot" />
-                <div>
-                  <span className="tl-date">2024 — Present</span>
-                  <h3>BSc Computer Science · LMD Year 2</h3>
-                  <span className="tl-place">Université d'Alger 1 — Benyoucef Benkhedda</span>
-                  <p>
-                    Studying computer science fundamentals — algorithms, data
-                    structures, systems and software engineering — while shipping
-                    real projects in web development and automation.
-                  </p>
-                  <div className="tl-chips">
-                    <Chip>Algorithms</Chip>
-                    <Chip>Data Structures</Chip>
-                    <Chip>Software Engineering</Chip>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="glass next">
-              <div>
-                <h3>Next chapter</h3>
-                <span className="next-sub">Open to internships & freelance work</span>
-              </div>
-              <p>Looking for a place to learn fast and ship real things. Currently available.</p>
-              <a className="pill pill-accent" href="#contact">Let's talk <ArrowUpRight size={14} /></a>
-            </div>
-          </div>
-        </section>
-
-        <section className="sec" id="contact">
-          <div className="cw">
-            <Eyebrow num="06" label="Contact" />
-            <h2 className="h2"><Mark text="Let's build together" serif={[3]} /></h2>
-            <p className="lede">
-              Have a project in mind, an internship to fill, or just want to say
-              hi? My inbox is open.
-            </p>
-            <div className="contact-chips">
-              <Chip accent>@ziadlammouri545-dev — GitHub</Chip>
-              <Chip accent>✉ Response within ~a day</Chip>
-            </div>
-            <form className="glass form" onSubmit={submit}>
-              <div className="form-row">
-                <label>Name <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ziad Lammourri" /></label>
-                <label>Email <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="you@example.com" /></label>
-              </div>
-              <label>Subject <input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} placeholder="A project, an opportunity." /></label>
-              <label>Message <textarea rows={5} value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} placeholder="Tell me what you're building and how I can help." /></label>
-              <button className="pill pill-accent form-btn" type="submit">
-                {sent ? "Opening your email app…" : "Send message"} <ArrowUpRight size={14} />
-              </button>
-            </form>
-          </div>
-        </section>
+      <main className="grid">
+        <ProfileTile />
+        <PhotoTile />
+        <NowPlaying />
+        <StatTile />
+        <ProjectTile />
+        <MapTile />
+        <NewsletterTile />
+        <ToolboxTile />
+        <CtaTile />
       </main>
 
-      <footer className="foot">
-        <div className="cw">
-          <div className="eyebrow"><span className="eyebrow-label">Algiers, Algeria</span></div>
-          <h2 className="foot-cta"><Mark text="Let's build something memorable." serif={[4]} /></h2>
-          <a className="foot-mail" href={`mailto:${EMAIL}`}>{EMAIL}</a>
-          <div className="foot-cols">
-            <div className="foot-col">
-              <span className="foot-title">Navigate</span>
-              {nav.map((n) => (
-                <a key={n} href={`#${n.toLowerCase()}`}>{n}</a>
-              ))}
-            </div>
-            <div className="foot-col">
-              <span className="foot-title">Elsewhere</span>
-              <a href={GITHUB} target="_blank" rel="noreferrer">GitHub</a>
-              <a href={`mailto:${EMAIL}`}>Email</a>
-            </div>
-          </div>
-          <div className="foot-bottom">
-            <span>© 2026 Lammouri Mohamed Ziad</span>
-            <span>Designed & built with React and a lot of coffee.</span>
-            <a className="foot-top" href="#top">Back to top <ArrowUp size={13} /></a>
-          </div>
-        </div>
-        <div className="foot-water">ZIAD<br />LAMMOURRI</div>
+      <footer className="footer">
+        <span>(c) {year} Lammouri Mohamed Ziad</span>
+        <span>Made with React and a grid of rounded rectangles.</span>
       </footer>
     </div>
   );
 }
-
-function Bar({ name, value }) {
-  const [ref, inView] = useInView(0.4);
-  return (
-    <div className="bar" ref={ref}>
-      <div className="bar-top">
-        <span className="bar-name">{name}</span>
-        <span className="bar-val">{value}%</span>
-      </div>
-      <div className="bar-track">
-        <span className={`bar-fill ${inView ? "in" : ""}`} style={{ width: `${value}%` }} />
-      </div>
-    </div>
-  );
-}
-
-const projects = [
-  {
-    name: "taskly",
-    desc: "The CLI task manager I use daily. Tasks live in a local JSON file — no setup, no service, just Node.",
-    stack: ["Node.js", "CLI", "JSON"],
-    url: `${GITHUB}/taskly`,
-  },
-  {
-    name: "github-explorer",
-    desc: "Paste any GitHub username, get back their profile, top languages and repos in a clean interface.",
-    stack: ["React", "Vite", "REST"],
-    url: `${GITHUB}/github-explorer`,
-  },
-  {
-    name: "snipurl",
-    desc: "Self-hosted URL shortener with a tested Express API and a small web UI on top.",
-    stack: ["Express", "SQLite", "EJS"],
-    url: `${GITHUB}/snipurl`,
-  },
-  {
-    name: "n8n-automations",
-    desc: "Ready workflows that email you a daily news digest and a weekly GitHub activity report.",
-    stack: ["n8n", "REST"],
-    url: `${GITHUB}/n8n-automations`,
-  },
-  {
-    name: "auth-todo-api",
-    desc: "REST API with JWT login and per-user to-do lists, fully covered by tests.",
-    stack: ["Express", "SQLite", "JWT"],
-    url: `${GITHUB}/auth-todo-api`,
-  },
-  {
-    name: "price-scraper",
-    desc: "Python watcher that texts you on Telegram the moment a product's price drops.",
-    stack: ["Python", "Telegram"],
-    url: `${GITHUB}/price-scraper`,
-  },
-];
-
-export default App;
