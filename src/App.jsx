@@ -5,7 +5,6 @@ import {
   Github,
   Mail,
   Coffee,
-  Music2,
   ArrowUpRight,
   MapPin,
   Send,
@@ -89,7 +88,6 @@ function SocialBtn({ href, icon: Icon, label }) {
 }
 
 function ProfileTile() {
-  const followers = useFollowers();
   return (
     <div className="tile s2 r2 profile">
       <div className="profile-top">
@@ -102,9 +100,8 @@ function ProfileTile() {
       <h1 className="bric name">{NAME}</h1>
       <p className="role">Software engineering student &amp; maker</p>
       <p className="bio">
-        2nd year CS at Université d'Alger 1. I build small web apps, CLI tools
-        and automations, and I push everything to GitHub. Currently
-        {followers !== null ? ` ${followers}` : ""} followers and counting.
+        2nd year CS at Université d'Alger 1. I build small web apps, CLI
+        tools and automations, and I push it all to GitHub.
       </p>
       <div className="socials">
         <SocialBtn href={GITHUB} icon={Github} label="GitHub" />
@@ -133,27 +130,23 @@ function PhotoTile() {
   );
 }
 
-function NowPlaying() {
+function Currently() {
   return (
     <div className="tile dark-tile np">
       <div className="np-eyebrow">
-        <Music2 size={13} className="ico-teal" />
-        Now playing
+        <Cpu size={13} className="ico-teal" />
+        Currently
       </div>
       <div className="np-thumb">
-        <Music2 size={18} />
+        <Code2 size={18} />
       </div>
       <div className="np-meta">
-        <span className="np-track">Coding Lo-Fi</span>
-        <span className="np-artist">on repeat, lately</span>
+        <span className="np-track">Learning C &amp; Python</span>
+        <span className="np-artist">the slow burn, on the side</span>
       </div>
-      <div className="np-bottom">
-        <span className="eq">
-          {[0, 1, 2, 3].map((i) => (
-            <i key={i} style={{ animationDelay: `${i * 0.14}s` }} />
-          ))}
-        </span>
-        <span className="np-time">2:41</span>
+      <div className="proj-tags np-bottom">
+        <span className="tag">Algorithms</span>
+        <span className="tag">Systems</span>
       </div>
     </div>
   );
@@ -293,7 +286,7 @@ export default function App() {
       <main className="grid">
         <ProfileTile />
         <PhotoTile />
-        <NowPlaying />
+        <Currently />
         <StatTile />
         <ProjectTile />
         <MapTile />
