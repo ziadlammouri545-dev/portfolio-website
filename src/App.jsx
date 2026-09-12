@@ -1,338 +1,149 @@
 import { useEffect, useState } from "react";
-import {
-  SquareStack,
-  Sparkles,
-  Copy,
-  CheckCheck,
-  ArrowRight,
-  CircleUserRound,
-  Server,
-  Workflow,
-  Terminal,
-  CheckCircle2,
-  UserPlus,
-  Mail,
-  Github,
-  SquareCode,
-} from "lucide-react";
 
 const GITHUB = "https://github.com/ziadlammouri545-dev";
 const USERNAME = "ziadlammouri545-dev";
+const EMAIL = "ziadlammouri545@gmail.com";
 
 const projects = [
   {
     name: "taskly",
-    desc: "A CLI task manager I use every day. Tasks live in a local JSON file, no setup needed.",
+    desc: "CLI task manager I use daily; tasks stored in a local JSON file. Node.js + Commander, 7 tests.",
+    stack: "Node.js · CLI",
     url: `${GITHUB}/taskly`,
   },
   {
     name: "github-explorer",
-    desc: "React app that takes any GitHub username and shows their profile, top languages and repos.",
+    desc: "React app that searches any GitHub profile and shows its repos and top languages.",
+    stack: "React · Vite · GitHub API",
     url: `${GITHUB}/github-explorer`,
   },
   {
     name: "snipurl",
-    desc: "Self-hosted URL shortener. Express backend, SQLite storage, small web UI, tested API.",
+    desc: "Self-hosted URL shortener with an Express API, SQLite storage and a small web UI.",
+    stack: "Express · SQLite · EJS",
     url: `${GITHUB}/snipurl`,
   },
   {
     name: "n8n-automations",
-    desc: "Ready-made n8n workflows: a daily news digest email and a weekly GitHub activity report.",
+    desc: "Ready-made n8n workflows: a daily news digest email and a weekly GitHub report.",
+    stack: "n8n · REST",
     url: `${GITHUB}/n8n-automations`,
   },
   {
-    name: "auth-todo-api",
-    desc: "A REST API with JWT login and protected to-do lists. Built to practise authentication.",
-    url: `${GITHUB}/auth-todo-api`,
+    name: "portfolio-website",
+    desc: "This site. Built with React and Vite, deployed on GitHub Pages.",
+    stack: "React · Vite",
+    url: `${GITHUB}/portfolio-website`,
   },
   {
-    name: "price-scraper",
-    desc: "Python script that watches a product page and sends a Telegram alert when the price drops.",
-    url: `${GITHUB}/price-scraper`,
+    name: "auth-todo-api",
+    desc: "REST API with JWT login and protected to-do lists. Express + SQLite, 7 tests.",
+    stack: "Express · SQLite · JWT",
+    url: `${GITHUB}/auth-todo-api`,
   },
 ];
 
 const skills = [
-  {
-    icon: SquareCode,
-    title: "Frontend",
-    body: "React apps built with Vite. Clean, responsive, component-first interfaces.",
-  },
-  {
-    icon: Server,
-    title: "Backend",
-    body: "Node.js, Express and SQLite. REST APIs with proper validation and tests.",
-  },
-  {
-    icon: Workflow,
-    title: "Automation",
-    body: "n8n workflows, webhooks and scheduled jobs that remove the boring work.",
-  },
-  {
-    icon: Terminal,
-    title: "Terminal & CLI",
-    body: "Small tools that live in the command line and do one job well.",
-  },
+  "JavaScript",
+  "HTML",
+  "CSS",
+  "C",
+  "Python",
+  "React",
+  "Node.js",
+  "Express",
+  "SQLite",
+  "n8n",
+  "Git",
 ];
 
-const profileJson = `{
-  "name": "Lammouri Mohamed Ziad",
-  "role": "Full-Stack Developer",
-  "location": "Algiers, Algeria",
-  "field": "n8n automation",
-  "languages": ["Arabic", "English"],
-  "stack": ["React", "Node.js", "Express", "SQLite", "n8n", "C", "Python"],
-  "studying": "CS, Year 2 · U. Alger 1",
-  "contact": "ziadlammouri545@gmail.com"
-}`;
-
-function useGitHubStats() {
-  const [stats, setStats] = useState({
-    projects: "—",
-    followers: "—",
-    following: "—",
-  });
-
+function GitHubStats() {
+  const [stats, setStats] = useState(null);
   useEffect(() => {
     fetch(`https://api.github.com/users/${USERNAME}`)
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (!d) return;
-        setStats({
-          projects: d.public_repos.toLocaleString(),
-          followers: d.followers.toLocaleString(),
-          following: d.following.toLocaleString(),
-        });
-      })
+      .then((d) => d && setStats({ repos: d.public_repos, following: d.following }))
       .catch(() => {});
   }, []);
-
-  return stats;
-}
-
-function ProfileCard() {
-  const stats = useGitHubStats();
+  if (!stats) return null;
   return (
-    <article className="profile-card">
-      <span className="accent-bar" />
-      <div className="avatar-wrap">
-        <div className="avatar">
-          <img
-            src="https://avatars.githubusercontent.com/u/268178767?v=4"
-            alt="Ziad avatar"
-          />
-        </div>
-        <span className="verified">
-          <CheckCheck />
-        </span>
-      </div>
-
-      <div className="name-block">
-        <h2>Lammouri Mohamed Ziad</h2>
-        <p className="role">Full-Stack Developer · n8n builder</p>
-      </div>
-
-      <div className="stat-row">
-        <div className="stat">
-          <strong>{stats.projects}</strong>
-          <span>Projects</span>
-        </div>
-        <div className="stat">
-          <strong>{stats.followers}</strong>
-          <span>Followers</span>
-        </div>
-        <div className="stat">
-          <strong>{stats.following}</strong>
-          <span>Following</span>
-        </div>
-      </div>
-
-      <p className="bio">
-        2nd-year CS student at Université d’Alger 1. I build web apps with
-        React and Node.js, and automate the boring stuff with n8n.
-      </p>
-
-      <div className="tag-row">
-        <span className="pill pill-fill">React</span>
-        <span className="pill">Node.js</span>
-        <span className="pill">n8n</span>
-      </div>
-
-      <div className="actions">
-        <a className="btn btn-primary" href={GITHUB} target="_blank" rel="noreferrer">
-          <UserPlus size={16} />
-          Follow
-        </a>
-        <a className="btn btn-secondary" href="mailto:ziadlammouri545@gmail.com">
-          <SquareCode size={16} />
-          Email
-        </a>
-      </div>
-    </article>
+    <span className="stats">
+      {stats.repos} public repos · {stats.following} following on GitHub
+    </span>
   );
 }
 
 export default function App() {
-  const stats = useGitHubStats();
-  const today = new Date().getFullYear();
+  const year = new Date().getFullYear();
 
   return (
-    <div className="page">
+    <div className="wrap">
       <nav className="nav">
-        <div className="nav-inner">
-          <div className="brand">
-            <span className="brand-tile">
-              <SquareStack size={18} />
-            </span>
-            <span className="wordmark">
-              Ziad<span className="dot">.</span>
-            </span>
-          </div>
-          <div className="nav-links">
-            <a href="#about">About</a>
-            <a href="#projects">Projects</a>
-            <a href="#contact">Contact</a>
-          </div>
-          <a className="nav-cta" href="#projects">
-            See my work
-            <ArrowRight size={15} />
-          </a>
+        <a className="logo" href="#top">Ziad<span className="dot">.</span></a>
+        <div className="nav-links">
+          <a href="#projects">Projects</a>
+          <a href="#about">About</a>
+          <a href={GITHUB}>GitHub</a>
         </div>
       </nav>
 
-      <header className="hero">
-        <div className="glow" />
-        <div className="hero-inner">
-          <div className="hero-copy">
-            <span className="pill-badge">
-              <Sparkles size={13} />
-              My profile card
-            </span>
-            <h1>
-              The developer, <span className="gradient-word">perfected.</span>
-            </h1>
-            <p className="lead">
-              I’m Ziad — a full-stack developer and n8n automation builder from
-              Algeria. I turn ideas into small, working products and I write it
-              all down.
-            </p>
-            <div className="cta-row">
-              <a className="btn btn-primary" href="#projects">
-                <SquareCode size={16} />
-                View my projects
-              </a>
-              <a className="btn btn-secondary" href="mailto:ziadlammouri545@gmail.com">
-                <Mail size={16} />
-                Email me
-              </a>
-            </div>
-            <div className="trust-row">
-              <span>
-                <CheckCircle2 size={14} /> Based in Algeria
-              </span>
-              <span>
-                <CheckCircle2 size={14} /> CS student · Year 2
-              </span>
-              <span>
-                <CheckCircle2 size={14} /> Open to collab
-              </span>
-            </div>
-          </div>
-
-          <div className="hero-card">
-            <ProfileCard />
-          </div>
+      <header className="hero" id="top">
+        <img
+          className="avatar"
+          src="https://avatars.githubusercontent.com/u/268178767?v=4"
+          alt="Ziad's avatar"
+        />
+        <h1>Hi, I'm Ziad.</h1>
+        <p className="tagline">
+          Full-stack developer and n8n automation builder from Algeria.
+          I like small, working products.
+        </p>
+        <p className="note">CS student, year 2 · Université d'Alger 1</p>
+        <div className="hero-actions">
+          <a className="btn" href="#projects">See my projects</a>
+          <a className="btn ghost" href={`mailto:${EMAIL}`}>Email me</a>
         </div>
       </header>
 
-      <main>
-        <section className="section anatomy" id="about">
-          <div className="section-inner">
-            <div className="section-head">
-              <h2>What I build</h2>
-              <p className="section-lead">
-                Every small tool has a job to do. Nothing decorative, everything
-                useful.
-              </p>
-            </div>
-            <div className="anatomy-grid">
-              {skills.map((s) => (
-                <div className="feature" key={s.title}>
-                  <div className="icon-tile">
-                    <s.icon size={20} />
+      <main className="content">
+        <section id="projects" className="section">
+          <h2>Projects</h2>
+          <ul className="list">
+            {projects.map((p) => (
+              <li key={p.name}>
+                <a href={p.url} className="row" target="_blank" rel="noreferrer">
+                  <div>
+                    <span className="proj-name">{p.name}</span>
+                    <span className="proj-desc">{p.desc}</span>
+                    <span className="proj-stack">{p.stack}</span>
                   </div>
-                  <h3>{s.title}</h3>
-                  <p>{s.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="section projects" id="projects">
-          <div className="section-inner">
-            <div className="section-head">
-              <h2>Projects</h2>
-              <p className="section-lead">
-                Open source, all public on GitHub. Click a card to open the repo.
-              </p>
-            </div>
-            <div className="project-grid">
-              {projects.map((p) => (
-                <a className="project" key={p.name} href={p.url} target="_blank" rel="noreferrer">
-                  <h3>{p.name}</h3>
-                  <p>{p.desc}</p>
-                  <span>Open repo</span>
+                  <span className="arrow">→</span>
                 </a>
-              ))}
-            </div>
-          </div>
+              </li>
+            ))}
+          </ul>
         </section>
 
-        <section className="section dark" id="contact">
-          <div className="section-inner dark-inner">
-            <div className="dark-copy">
-              <h2>My stack, in one file</h2>
-              <p className="dark-lead">
-                A snapshot of who I am as a developer — languages, tools and
-                where I’m heading. See the code behind this page on GitHub.
-              </p>
-              <a className="btn btn-primary" href={GITHUB} target="_blank" rel="noreferrer">
-                <Github size={16} />
-                Open on GitHub
-              </a>
-            </div>
-            <div className="code-panel">
-              <div className="code-bar">
-                <Terminal size={15} />
-                <span className="code-label">profile.json</span>
-                <button className="copy-btn">
-                  <Copy size={13} /> Copy
-                </button>
-              </div>
-              <pre className="code-body">
-                <code>{profileJson}</code>
-              </pre>
-            </div>
-          </div>
+        <section id="about" className="section">
+          <h2>About</h2>
+          <p>
+            I'm a second-year computer science student who loves building for
+            the web and the terminal. Most of my time goes into JavaScript and
+            React; I use n8n to automate whatever is worth automating, and I'm
+            learning C and Python on the side.
+          </p>
+          <p className="skills">
+            <strong>Skills:</strong> {skills.join(" · ")}
+          </p>
+          <p>
+            <strong>Languages:</strong> Arabic (native), English.
+          </p>
         </section>
       </main>
 
       <footer className="footer">
-        <div className="footer-inner">
-          <div className="brand">
-            <span className="brand-tile small">
-              <SquareStack size={14} />
-            </span>
-            <span className="wordmark">
-              Ziad<span className="dot">.</span>
-            </span>
-          </div>
-          <span className="footer-tag">Built with React + Vite.</span>
-          <span className="footer-note">
-            © {today} Ziad Lammouri · {stats.projects} public repos
-          </span>
-        </div>
+        <span>© {year} Lammouri Mohamed Ziad</span>
+        <GitHubStats />
       </footer>
     </div>
   );
